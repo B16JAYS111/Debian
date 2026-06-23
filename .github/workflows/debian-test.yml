@@ -1,0 +1,24 @@
+name: Debian CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    # GitHub's runner runs Ubuntu, but we can host a Debian container inside it
+    runs-on: ubuntu-latest
+    container:
+      image: debian:stable-slim # Uses the official, lightweight Debian image
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Update and Install Dependencies
+      run: |
+        apt-get update
+        apt-get install -y build-essential curl
+
+    - name: Run your tests
+      run: |
+        echo "Hello from Debian!"
+        cat /etc/os-release
