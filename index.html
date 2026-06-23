@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debian Linux in the Browser</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: monospace;
+            margin: 20px;
+        }
+        #screen_container {
+            white-space: pre;
+            font-family: Courier, monospace;
+            font-size: 14px;
+            line-height: 14px;
+            cursor: text;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Debian Linux (via v86 Emulator)</h2>
+    <p>Status: <span id="status">Loading emulator...</span></p>
+    <hr>
+
+    <div id="screen_container"></div>
+
+    <script src="https://copy.sh/v86/build/libv86.js"></script>
+    <script>
+        window.onload = function() {
+            var emulator = new V86Starter({
+                wasm_path: "https://copy.sh/v86/build/v86.wasm",
+                memory_size: 32 * 1024 * 1024, // 32MB RAM is enough for small Linux
+                vga_as_textcode: true,
+                screen_container: document.getElementById("screen_container"),
+                // We will link a lightweight Linux image below
+                bzimage: {
+                    url: "https://copy.sh/v86/images/buildroot-bzimage.bin",
+                },
+                cmdline: "tsc=reliable builtin_cmdline=1",
+                autostart: true,
+            });
+
+            emulator.add_listener("download-progress", function(e) {
+                document.getElementById("status").innerText = "Downloading OS: " + Math.round(e.loaded / e.total * 100) + "%";
+            });
+
+            emulator.add_listener("ready", function() {
+                document.getElementById("status").innerText = "Running!";
+            });
+        };
+    </script>
+</body>
+</html>
